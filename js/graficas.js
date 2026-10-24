@@ -3,6 +3,7 @@ import { db, collection, getDocs, deleteDoc, doc } from './firebase.js';
 const contenedorGraficas = document.getElementById('contenedorGraficas');
 const totalBadge = document.getElementById('totalRespuestasBadge');
 const btnVaciar = document.getElementById('btnVaciarRespuestas');
+const btnExportar = document.getElementById('btnExportarPDF');
 
 const chartColors = [
   '#4f46e5', '#3b82f6', '#10b981', '#f59e0b', 
@@ -175,7 +176,7 @@ if (btnVaciar) {
   btnVaciar.addEventListener('click', async () => {
     const confirmar = confirm("¿Estás seguro de que deseas borrar TODAS las respuestas registradas?");
     
-    if (confirmar) {
+      if (confirmar) {
       try {
         const snapshot = await getDocs(collection(db, "respuestas_encuesta"));
         const borrados = snapshot.docs.map(documento => deleteDoc(doc(db, "respuestas_encuesta", documento.id)));
@@ -196,4 +197,11 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderizarGraficas);
 } else {
   renderizarGraficas();
+}
+
+// Evento para exportar / imprimir reporte a PDF
+if (btnExportar) {
+  btnExportar.addEventListener('click', () => {
+    window.print();
+  });
 }

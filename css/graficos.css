@@ -15,3 +15,25 @@
   width: 100%;
   max-height: 320px;
 }
+@media print {
+  /* Ocultar la barra lateral y los botones en el PDF */
+  .sidebar-custom, 
+  #btnVaciarRespuestas, 
+  #btnExportarPDF, 
+  #btnLogout {
+    display: none !important;
+  }
+  
+  /* Ajustar el contenedor principal a ancho completo */
+  .main-content {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Evitar que una gráfica se corte a la mitad entre páginas */
+  .col-md-6 {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
