@@ -19,7 +19,7 @@ function mostrarNotificacion(titulo, mensaje) {
   }
 }
 
-// 1. Cargar la configuración existente al abrir la vista
+// Cargar solo Título y Objetivo existente
 async function cargarConfiguracion() {
   try {
     const docRef = doc(db, "configuracion", "general");
@@ -27,18 +27,15 @@ async function cargarConfiguracion() {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      document.getElementById('facultadEncuesta').value = data.facultad || '';
-      document.getElementById('materiaEncuesta').value = data.materia || '';
-      document.getElementById('tituloEncuesta').value = data.titulo || '';
-      document.getElementById('objetivoEncuesta').value = data.objetivo || '';
-      document.getElementById('indicacionesEncuesta').value = data.indicaciones || '';
+      if (data.titulo) document.getElementById('tituloEncuesta').value = data.titulo;
+      if (data.objetivo) document.getElementById('objetivoEncuesta').value = data.objetivo;
     }
   } catch (error) {
     console.error("Error al cargar la configuración:", error);
   }
 }
 
-// 2. Guardar encabezado
+// Guardar Título y Objetivo
 if (formHeader) {
   formHeader.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -47,17 +44,14 @@ if (formHeader) {
     btnGuardarHeader.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Guardando...`;
 
     const configData = {
-      facultad: document.getElementById('facultadEncuesta').value.trim(),
-      materia: document.getElementById('materiaEncuesta').value.trim(),
       titulo: document.getElementById('tituloEncuesta').value.trim(),
       objetivo: document.getElementById('objetivoEncuesta').value.trim(),
-      indicaciones: document.getElementById('indicacionesEncuesta').value.trim(),
       fechaActualizacion: new Date()
     };
 
     try {
       await setDoc(doc(db, "configuracion", "general"), configData);
-      mostrarNotificacion("Encabezado Guardado", "Información de la encuesta actualizada correctamente.");
+      mostrarNotificacion("Encabezado Guardado", "Título y objetivo actualizados correctamente.");
     } catch (error) {
       console.error("Error al guardar encabezado: ", error);
       alert("Error al actualizar la información general.");
@@ -68,7 +62,7 @@ if (formHeader) {
   });
 }
 
-// 3. Guardar pregunta
+// Guardar Pregunta
 if (formPregunta) {
   formPregunta.addEventListener('submit', async (e) => {
     e.preventDefault();

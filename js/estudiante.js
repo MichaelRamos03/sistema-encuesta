@@ -19,13 +19,10 @@ const alertaErrorTexto = document.getElementById('alertaErrorTexto');
 const inputCorreo = document.getElementById('correoEstudiante');
 
 // Elementos del Encabezado
-const dispFacultad = document.getElementById('dispFacultad');
-const dispMateria = document.getElementById('dispMateria');
 const dispTitulo = document.getElementById('dispTitulo');
 const dispObjetivo = document.getElementById('dispObjetivo');
-const dispIndicaciones = document.getElementById('dispIndicaciones');
+const boxObjetivo = document.getElementById('boxObjetivo');
 
-// Utilidades para Alertas Visuales
 function mostrarError(mensaje) {
   if (alertaError && alertaErrorTexto) {
     alertaErrorTexto.textContent = mensaje;
@@ -42,7 +39,7 @@ function ocultarAlertas() {
   if (alertaExito) alertaExito.classList.add('d-none');
 }
 
-// 1. Cargar Información de Encabezado desde Firestore
+// Cargar solo Título y Objetivo
 async function cargarEncabezado() {
   try {
     const docRef = doc(db, "configuracion", "general");
@@ -50,18 +47,19 @@ async function cargarEncabezado() {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.facultad) dispFacultad.textContent = data.facultad;
-      if (data.materia) dispMateria.textContent = data.materia;
       if (data.titulo) dispTitulo.textContent = data.titulo;
-      if (data.objetivo) dispObjetivo.innerHTML = `<strong>Objetivo:</strong> ${data.objetivo}`;
-      if (data.indicaciones) dispIndicaciones.innerHTML = `<strong>Indicaciones:</strong> ${data.indicaciones}`;
+      if (data.objetivo) {
+        dispObjetivo.innerHTML = `<strong>Objetivo:</strong> ${data.objetivo}`;
+      } else {
+        if (boxObjetivo) boxObjetivo.classList.add('d-none');
+      }
     }
   } catch (error) {
     console.error("Error al cargar el encabezado:", error);
   }
 }
 
-// 2. Cargar Preguntas Dinámicas desde Firestore
+// Cargar Preguntas Dinámicas
 async function cargarPreguntas() {
   try {
     const querySnapshot = await getDocs(collection(db, "preguntas"));
@@ -96,7 +94,6 @@ async function cargarPreguntas() {
           ${opcionesHTML}
         </select>
         
-        <!-- Campo para especificar en caso de seleccionar 'Otra / Otro' -->
         <div class="mt-2 d-none" id="contenedor-otro-${preguntaId}">
           <input type="text" class="form-control input-modern input-otro" id="input-otro-${preguntaId}" placeholder="Especifica tu respuesta..." autocomplete="off">
           <div class="invalid-feedback">Por favor, especifica tu respuesta.</div>
@@ -107,7 +104,6 @@ async function cargarPreguntas() {
 
       contenedorPreguntas.appendChild(preguntaBlock);
 
-      // Evento para detectar si elige "Otra", "Otro" o "Especifique"
       const selectElement = preguntaBlock.querySelector('.pregunta-input');
       const contenedorOtro = preguntaBlock.querySelector(`#contenedor-otro-${preguntaId}`);
       const inputOtro = preguntaBlock.querySelector(`#input-otro-${preguntaId}`);
@@ -138,7 +134,7 @@ async function cargarPreguntas() {
   }
 }
 
-// 3. Consultar en Firestore si el correo ya registró respuesta
+// Validar correo único
 async function verificarCorreoExistente(correo) {
   const q = query(
     collection(db, "respuestas_encuesta"), 
@@ -148,7 +144,7 @@ async function verificarCorreoExistente(correo) {
   return !querySnapshot.empty;
 }
 
-// 4. Handler para enviar las respuestas
+// Handler de Envío
 formEncuesta.addEventListener('submit', async (e) => {
   e.preventDefault();
   ocultarAlertas();
@@ -158,7 +154,6 @@ formEncuesta.addEventListener('submit', async (e) => {
   
   let esValido = true;
 
-  // Validar Correo
   if (!correo) {
     inputCorreo.classList.add('is-invalid');
     esValido = false;
@@ -166,7 +161,6 @@ formEncuesta.addEventListener('submit', async (e) => {
     inputCorreo.classList.remove('is-invalid');
   }
 
-  // Validar Selección de Preguntas
   const respuestasSeleccionadas = {};
 
   inputsPreguntas.forEach(select => {
@@ -180,7 +174,6 @@ formEncuesta.addEventListener('submit', async (e) => {
     } else {
       select.classList.remove('is-invalid');
 
-      // Validar si eligió opción de texto especificado
       const valorMinuscula = valorSelect.trim().toLowerCase();
       if (valorMinuscula === 'otra' || valorMinuscula === 'otro' || valorMinuscula.includes('especifique')) {
         const textoEspecifico = inputOtro ? inputOtro.value.trim() : "";
@@ -203,12 +196,10 @@ formEncuesta.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Bloqueo de botón mientras valida en Firestore
   btnEnviar.disabled = true;
   btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validando correo...`;
 
   try {
-    // Validar Duplicado de Correo
     const yaExiste = await verificarCorreoExistente(correo);
 
     if (yaExiste) {
@@ -217,7 +208,6 @@ formEncuesta.addEventListener('submit', async (e) => {
       return;
     }
 
-    // Guardado de Datos
     btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...`;
 
     const payload = {
@@ -228,7 +218,6 @@ formEncuesta.addEventListener('submit', async (e) => {
 
     await addDoc(collection(db, "respuestas_encuesta"), payload);
     
-    // Limpieza de Formulario y Estado
     formEncuesta.reset();
     inputCorreo.classList.remove('is-invalid');
     inputsPreguntas.forEach(s => s.classList.remove('is-invalid'));
@@ -249,6 +238,5 @@ formEncuesta.addEventListener('submit', async (e) => {
   }
 });
 
-// Inicialización al cargar la página
 cargarEncabezado();
 cargarPreguntas();

@@ -17,7 +17,7 @@
   <div class="container-fluid h-100 p-0">
     <div class="row g-0 h-100">
       
-      <!-- Sidebar / Menú Lateral -->
+      <!-- Sidebar -->
       <aside class="col-md-3 col-lg-2 sidebar-custom d-flex flex-column p-3 text-white">
         <a href="dashboard.html" class="d-flex align-items-center mb-4 mt-2 text-white text-decoration-none">
           <i class="bi bi-layers-half fs-3 me-2 text-primary-light"></i>
@@ -70,7 +70,7 @@
 
         <div class="row g-4 justify-content-center w-100">
           
-          <!-- Card 1: Configurar Encabezado e Información de la Encuesta -->
+          <!-- Encabezado simplificado: Solo Título y Objetivo -->
           <div class="col-md-10 col-lg-6">
             <div class="glass-card p-4 p-md-5 h-100">
               
@@ -78,34 +78,19 @@
                 <div class="icon-pulse mb-3 mx-auto">
                   <i class="bi bi-journal-text fs-2"></i>
                 </div>
-                <h4 class="fw-bold text-dark mb-1">Encabezado de Encuesta</h4>
-                <p class="text-muted small">Configura el título, facultad y objetivo general.</p>
+                <h4 class="fw-bold text-dark mb-1">Encabezado</h4>
+                <p class="text-muted small">Configura el título y el objetivo de la encuesta.</p>
               </div>
 
               <form id="formConfigEncuesta">
-                <div class="form-floating mb-3">
-                  <input type="text" class="form-control input-modern" id="facultadEncuesta" placeholder="Facultad..." required autocomplete="off">
-                  <label for="facultadEncuesta" class="text-muted"><i class="bi bi-building me-2"></i>Facultad / Unidad</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                  <input type="text" class="form-control input-modern" id="materiaEncuesta" placeholder="Materia..." required autocomplete="off">
-                  <label for="materiaEncuesta" class="text-muted"><i class="bi bi-book me-2"></i>Materia / Asignatura</label>
-                </div>
-
                 <div class="form-floating mb-3">
                   <input type="text" class="form-control input-modern" id="tituloEncuesta" placeholder="Título..." required autocomplete="off">
                   <label for="tituloEncuesta" class="text-muted"><i class="bi bi-card-heading me-2"></i>Título Principal</label>
                 </div>
 
-                <div class="form-floating mb-3">
-                  <textarea class="form-control input-modern" id="objetivoEncuesta" placeholder="Objetivo..." style="height: 100px" required></textarea>
-                  <label for="objetivoEncuesta" class="text-muted"><i class="bi bi-bullseye me-2"></i>Objetivo</label>
-                </div>
-
                 <div class="form-floating mb-4">
-                  <textarea class="form-control input-modern" id="indicacionesEncuesta" placeholder="Indicaciones..." style="height: 90px" required></textarea>
-                  <label for="indicacionesEncuesta" class="text-muted"><i class="bi bi-info-square me-2"></i>Indicaciones</label>
+                  <textarea class="form-control input-modern" id="objetivoEncuesta" placeholder="Objetivo..." style="height: 120px" required></textarea>
+                  <label for="objetivoEncuesta" class="text-muted"><i class="bi bi-bullseye me-2"></i>Objetivo</label>
                 </div>
 
                 <button type="submit" class="btn btn-outline-primary w-100" id="btnGuardarHeader">
@@ -116,7 +101,7 @@
             </div>
           </div>
 
-          <!-- Card 2: Agregar Pregunta -->
+          <!-- Card Pregunta -->
           <div class="col-md-10 col-lg-6">
             <div class="glass-card p-4 p-md-5 h-100">
               
