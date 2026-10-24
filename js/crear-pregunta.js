@@ -1,21 +1,85 @@
-import { db, collection, addDoc } from './firebase.js';
+import { db, collection, addDoc, doc, setDoc, getDoc } from './firebase.js';
 
-const form = document.getElementById('formCrearPregunta');
+const formPregunta = document.getElementById('formCrearPregunta');
+const formHeader = document.getElementById('formConfigEncuesta');
+
 const alerta = document.getElementById('alertaAdmin');
-const btnGuardar = document.getElementById('btnGuardarPregunta');
+const alertaTitulo = document.getElementById('alertaAdminTitulo');
+const alertaTexto = document.getElementById('alertaAdminTexto');
 
-if (form) {
-  form.addEventListener('submit', async (e) => {
+const btnGuardarPregunta = document.getElementById('btnGuardarPregunta');
+const btnGuardarHeader = document.getElementById('btnGuardarHeader');
+
+function mostrarNotificacion(titulo, mensaje) {
+  if (alerta && alertaTitulo && alertaTexto) {
+    alertaTitulo.textContent = titulo;
+    alertaTexto.textContent = mensaje;
+    alerta.classList.remove('d-none');
+    setTimeout(() => alerta.classList.add('d-none'), 3500);
+  }
+}
+
+// 1. Cargar la configuración existente al abrir la vista
+async function cargarConfiguracion() {
+  try {
+    const docRef = doc(db, "configuracion", "general");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      document.getElementById('facultadEncuesta').value = data.facultad || '';
+      document.getElementById('materiaEncuesta').value = data.materia || '';
+      document.getElementById('tituloEncuesta').value = data.titulo || '';
+      document.getElementById('objetivoEncuesta').value = data.objetivo || '';
+      document.getElementById('indicacionesEncuesta').value = data.indicaciones || '';
+    }
+  } catch (error) {
+    console.error("Error al cargar la configuración:", error);
+  }
+}
+
+// 2. Guardar encabezado
+if (formHeader) {
+  formHeader.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    btnGuardar.disabled = true;
-    btnGuardar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Guardando...`;
+    btnGuardarHeader.disabled = true;
+    btnGuardarHeader.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Guardando...`;
+
+    const configData = {
+      facultad: document.getElementById('facultadEncuesta').value.trim(),
+      materia: document.getElementById('materiaEncuesta').value.trim(),
+      titulo: document.getElementById('tituloEncuesta').value.trim(),
+      objetivo: document.getElementById('objetivoEncuesta').value.trim(),
+      indicaciones: document.getElementById('indicacionesEncuesta').value.trim(),
+      fechaActualizacion: new Date()
+    };
+
+    try {
+      await setDoc(doc(db, "configuracion", "general"), configData);
+      mostrarNotificacion("Encabezado Guardado", "Información de la encuesta actualizada correctamente.");
+    } catch (error) {
+      console.error("Error al guardar encabezado: ", error);
+      alert("Error al actualizar la información general.");
+    } finally {
+      btnGuardarHeader.disabled = false;
+      btnGuardarHeader.innerHTML = `<i class="bi bi-save-fill me-2"></i> Guardar Encabezado`;
+    }
+  });
+}
+
+// 3. Guardar pregunta
+if (formPregunta) {
+  formPregunta.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    btnGuardarPregunta.disabled = true;
+    btnGuardarPregunta.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Guardando...`;
 
     const texto = document.getElementById('textoPregunta').value.trim();
     const opcionesTexto = document.getElementById('opcionesPregunta').value;
 
-    // Convertir el texto "Java, PHP, C++" en arreglo ["Java", "PHP", "C++"]
-    const opcionesArray = opcionesTexto.split(',').map(opcion => opcion.trim()).filter(opcion => opcion !== "");
+    const opcionesArray = opcionesTexto.split(',').map(op => op.trim()).filter(op => op !== "");
 
     try {
       await addDoc(collection(db, "preguntas"), {
@@ -24,17 +88,17 @@ if (form) {
         fechaCreacion: new Date()
       });
 
-      alerta.classList.remove('d-none');
-      form.reset();
-      
-      setTimeout(() => alerta.classList.add('d-none'), 3500);
+      mostrarNotificacion("Pregunta Agregada", "La pregunta se registró exitosamente.");
+      formPregunta.reset();
 
     } catch (error) {
       console.error("Error al guardar la pregunta: ", error);
       alert("Hubo un error al guardar en la base de datos.");
     } finally {
-      btnGuardar.disabled = false;
-      btnGuardar.innerHTML = `<i class="bi bi-cloud-arrow-up-fill me-2 fs-5"></i> Guardar en Firestore`;
+      btnGuardarPregunta.disabled = false;
+      btnGuardarPregunta.innerHTML = `<i class="bi bi-cloud-arrow-up-fill me-2 fs-5"></i> Guardar Pregunta`;
     }
   });
 }
+
+cargarConfiguracion();
