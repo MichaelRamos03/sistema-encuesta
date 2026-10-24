@@ -6,6 +6,8 @@ import {
   getDocs, 
   deleteDoc, 
   doc, 
+  getDoc,    // <-- AGREGAR ESTA
+  setDoc,    // <-- AGREGAR ESTA
   query, 
   where 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -37,6 +39,8 @@ export {
   getDocs, 
   deleteDoc, 
   doc, 
+  getDoc,    // <-- EXPORTAR ESTA
+  setDoc,    // <-- EXPORTAR ESTA
   query, 
   where, 
   signInWithEmailAndPassword, 
