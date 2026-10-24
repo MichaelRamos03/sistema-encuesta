@@ -17,37 +17,47 @@
 }
 
 @media print {
-  /* Ocultar interfaz de la app */
+  /* 1. Ocultar interfaz administrativa */
   .sidebar-custom, 
   #btnVaciarRespuestas, 
   #btnExportarPDF, 
   #btnLogout {
     display: none !important;
   }
-  
-  @page {
-    margin: 10mm;
-    size: A4 portrait;
-  }
 
-  body, .container-fluid, .main-content {
+  /* 2. Liberar altura y overflow para que se generen todas las páginas necesarias */
+  html, body, .container-fluid, .row, .main-content {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
     background: #ffffff !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    position: static !important;
   }
 
+  @page {
+    margin: 12mm;
+    size: A4 portrait;
+  }
+
+  /* 3. Contenedor en flujo vertical continuo */
   #contenedorGraficas {
     display: block !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
-  /* Cada tarjeta en su propia fila dentro del PDF */
+  /* 4. Cada tarjeta se ajusta a su contenido y no se corta feo en los saltos de página */
   .tarjeta-pregunta {
     width: 100% !important;
     margin-bottom: 25px !important;
     padding: 0 !important;
-    page-break-inside: avoid; /* Evita que una gráfica se corte a la mitad de la hoja */
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block !important;
   }
 
   .glass-card {
@@ -57,19 +67,12 @@
     background: #ffffff !important;
   }
 
-  /* Alto adecuado para que la dona y su leyenda no se encimen */
   .chart-container {
-    height: 260px !important;
+    height: 240px !important;
     width: 100% !important;
     position: relative !important;
   }
 
-  /* Ajustes de tipografía */
   h2 { font-size: 1.3rem !important; margin-bottom: 15px !important; }
   h5 { font-size: 0.95rem !important; margin-bottom: 10px !important; color: #0f172a !important; }
-  
-  .border-top {
-    margin-top: 10px !important;
-    padding-top: 10px !important;
-  }
 }
