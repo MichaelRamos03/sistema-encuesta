@@ -6,10 +6,11 @@ import {
   getDocs, 
   deleteDoc, 
   doc, 
-  getDoc,    // <-- AGREGAR ESTA
-  setDoc,    // <-- AGREGAR ESTA
+  getDoc,
+  setDoc,
   query, 
-  where 
+  where,
+  orderBy // <-- 1. Importar aquí
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, 
@@ -39,10 +40,11 @@ export {
   getDocs, 
   deleteDoc, 
   doc, 
-  getDoc,    // <-- EXPORTAR ESTA
-  setDoc,    // <-- EXPORTAR ESTA
+  getDoc,
+  setDoc,
   query, 
-  where, 
+  where,
+  orderBy, 
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged 
