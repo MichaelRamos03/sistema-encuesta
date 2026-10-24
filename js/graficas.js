@@ -31,7 +31,6 @@ async function renderizarGraficas() {
     try {
       snapshotRespuestas = await getDocs(collection(db, "respuestas_encuesta"));
     } catch (errResp) {
-      console.warn("Colección 'respuestas_encuesta' vacía o no iniciada:", errResp);
       snapshotRespuestas = { empty: true, size: 0, forEach: () => {} };
     }
 
@@ -41,6 +40,7 @@ async function renderizarGraficas() {
           <div class="glass-card p-5">
             <i class="bi bi-exclamation-circle fs-1 text-warning d-block mb-3"></i>
             <h5 class="fw-bold">No hay preguntas creadas</h5>
+            <p class="text-muted small mb-0">Crea preguntas desde el panel para empezar a recopilar datos.</p>
           </div>
         </div>`;
       if (totalBadge) totalBadge.textContent = "0 Respuestas";
@@ -81,61 +81,82 @@ async function renderizarGraficas() {
       const labels = Object.keys(conteoOpciones);
       const dataValues = Object.values(conteoOpciones);
 
-      // Generar tarjeta para la gráfica
+      // Desglose de votos y porcentajes debajo de la dona
+      let desgloseHTML = `<div class="mt-3 pt-3 border-top">`;
+      labels.forEach((label, idx) => {
+        const votos = conteoOpciones[label];
+        const porcentaje = totalVotosPregunta > 0 ? ((votos / totalVotosPregunta) * 100).toFixed(1) : 0;
+        const color = chartColors[idx % chartColors.length];
+
+        desgloseHTML += `
+          <div class="d-flex justify-content-between align-items-center mb-1 small">
+            <span>
+              <span class="d-inline-block rounded-circle me-1" style="width:10px; height:10px; background-color:${color}"></span>
+              ${label}
+            </span>
+            <span class="fw-bold text-dark">${votos} voto(s) (${porcentaje}%)</span>
+          </div>
+        `;
+      });
+      desgloseHTML += `</div>`;
+
+      // Tarjeta web con formato Dona
       const colDiv = document.createElement('div');
       colDiv.className = 'col-md-6 col-xl-6 mb-4 tarjeta-pregunta';
       colDiv.innerHTML = `
-        <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between">
-          <h6 class="fw-bold text-dark mb-2 small">
-            <span class="badge bg-primary text-white me-1">P${indexPregunta}</span> ${textoPregunta}
-          </h6>
-          <div class="chart-container" style="position: relative; height:180px; width:100%;">
-            <canvas id="chart-${idPregunta}"></canvas>
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="fw-bold text-dark mb-0">
+                <span class="badge bg-primary text-white me-2">P${indexPregunta}</span>${textoPregunta}
+              </h5>
+            </div>
+            <div class="chart-container d-flex justify-content-center align-items-center" style="min-height:220px;">
+              <canvas id="chart-${idPregunta}"></canvas>
+            </div>
           </div>
+          ${desgloseHTML}
         </div>
       `;
       contenedorGraficas.appendChild(colDiv);
 
-      // Renderizar gráfica de barras horizontales compactas
+      // Renderizar gráfica de DONA
       const canvasEl = document.getElementById(`chart-${idPregunta}`);
       if (canvasEl && typeof Chart !== 'undefined') {
         const ctx = canvasEl.getContext('2d');
         new Chart(ctx, {
-          type: 'bar',
+          type: 'doughnut',
           data: {
             labels: labels,
             datasets: [{
-              label: 'Votos',
               data: dataValues,
               backgroundColor: chartColors.slice(0, labels.length),
-              borderRadius: 4
+              borderWidth: 2,
+              borderColor: '#ffffff'
             }]
           },
           options: {
-            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { display: false },
+              legend: {
+                position: 'bottom',
+                labels: {
+                  font: { family: 'Inter', size: 12 },
+                  usePointStyle: true
+                }
+              },
               tooltip: {
                 callbacks: {
                   label: function (context) {
+                    const label = context.label || '';
                     const valor = context.raw || 0;
                     const porcentaje = totalVotosPregunta > 0 
                       ? ((valor / totalVotosPregunta) * 100).toFixed(1) 
                       : 0;
-                    return ` ${valor} voto(s) (${porcentaje}%)`;
+                    return ` ${label}: ${valor} votos (${porcentaje}%)`;
                   }
                 }
-              }
-            },
-            scales: {
-              x: {
-                beginAtZero: true,
-                ticks: { precision: 0, font: { size: 10 } }
-              },
-              y: {
-                ticks: { font: { size: 10 } }
               }
             }
           }
@@ -148,14 +169,14 @@ async function renderizarGraficas() {
   }
 }
 
-// Botón de Impresión
+// Botón de Impresión para PDF
 if (btnExportar) {
   btnExportar.addEventListener('click', () => {
     window.print();
   });
 }
 
-// Botón de Vaciar Respuestas
+// Vaciar respuestas
 if (btnVaciar) {
   btnVaciar.addEventListener('click', async () => {
     if (confirm("¿Estás seguro de que deseas borrar TODAS las respuestas registradas?")) {

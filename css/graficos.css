@@ -18,7 +18,7 @@
 
 
 @media print {
-  /* Ocultar sidebar y botones */
+  /* Ocultar elementos de navegación */
   .sidebar-custom, 
   #btnVaciarRespuestas, 
   #btnExportarPDF, 
@@ -27,7 +27,7 @@
   }
   
   @page {
-    margin: 10mm;
+    margin: 8mm;
     size: A4 portrait;
   }
 
@@ -38,7 +38,7 @@
     width: 100% !important;
   }
 
-  /* Disposición de 2 preguntas por fila */
+  /* Mostrar 2 preguntas por fila en el PDF */
   #contenedorGraficas {
     display: flex !important;
     flex-wrap: wrap !important;
@@ -56,13 +56,17 @@
   .glass-card {
     border: 1px solid #d1d5db !important;
     box-shadow: none !important;
-    padding: 8px !important;
+    padding: 10px !important;
   }
 
+  /* Reducir altura del canvas de la dona al imprimir */
   .chart-container {
-    height: 130px !important;
+    min-height: 140px !important;
+    max-height: 150px !important;
   }
 
   h2 { font-size: 1.1rem !important; }
-  h6 { font-size: 0.75rem !important; }
+  h5 { font-size: 0.8rem !important; margin-bottom: 4px !important; }
+  .border-top { margin-top: 4px !important; padding-top: 4px !important; }
+  .small { font-size: 0.65rem !important; }
 }
