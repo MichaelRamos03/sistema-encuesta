@@ -31,11 +31,12 @@
             <p class="text-secondary small">Ingresa tu correo e indica tus respuestas</p>
           </div>
 
-          <form id="formEncuesta">
+          <form id="formEncuesta" novalidate>
             <!-- Correo institucional/personal -->
             <div class="form-floating mb-4">
               <input type="email" class="form-control input-modern" id="correoEstudiante" placeholder="usuario@ues.edu.sv" required autocomplete="off">
-              <label for="correoEstudiante" class="text-muted"><i class="bi bi-envelope-at me-2"></i>Correo universitario / personal</label>
+              <label for="correoEstudiante"><i class="bi bi-envelope-at me-2"></i>Correo universitario / personal</label>
+              <div class="invalid-feedback">Por favor, ingresa un correo válido.</div>
             </div>
 
             <hr class="my-4 border-secondary opacity-25">
@@ -57,13 +58,13 @@
           </form>
 
           <!-- Alerta de Confirmación -->
-          <div id="alertaExito" class="modern-alert mt-4 d-none d-flex align-items-center" role="alert">
+          <div id="alertaExito" class="alert alert-success mt-4 d-none d-flex align-items-center rounded-3" role="alert">
             <div class="alert-icon-wrap me-3">
-              <i class="bi bi-check2-circle fs-4 text-white"></i>
+              <i class="bi bi-check2-circle fs-4"></i>
             </div>
             <div>
-              <h6 class="mb-0 fw-bold text-success">¡Muchas gracias!</h6>
-              <small class="text-success opacity-75">Tus respuestas han sido registradas en Firestore.</small>
+              <h6 class="mb-0 fw-bold">¡Muchas gracias!</h6>
+              <small class="opacity-75">Tus respuestas han sido registradas exitosamente.</small>
             </div>
           </div>
 

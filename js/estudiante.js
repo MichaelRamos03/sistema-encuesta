@@ -1,9 +1,10 @@
-import { db, collection, addDoc, getDocs } from './firebase.js';
+import { db, collection, addDoc, getDocs, query, where } from './firebase.js';
 
 const contenedorPreguntas = document.getElementById('contenedorPreguntas');
 const formEncuesta = document.getElementById('formEncuesta');
 const btnEnviar = document.getElementById('btnEnviarRespuestas');
 const alertaExito = document.getElementById('alertaExito');
+const inputCorreo = document.getElementById('correoEstudiante');
 
 // Cargar preguntas desde Firestore
 async function cargarPreguntas() {
@@ -39,6 +40,7 @@ async function cargarPreguntas() {
         <select class="form-select select-modern pregunta-input" data-id="${preguntaId}" required>
           ${opcionesHTML}
         </select>
+        <div class="invalid-feedback">Esta pregunta es obligatoria.</div>
       `;
 
       contenedorPreguntas.appendChild(preguntaBlock);
@@ -55,32 +57,87 @@ async function cargarPreguntas() {
   }
 }
 
-// Guardar respuestas en respuestas_encuesta
+// Consultar si el correo ya respondió anteriormente
+async function verificarCorreoExistente(correo) {
+  const q = query(
+    collection(db, "respuestas_encuesta"), 
+    where("correo", "==", correo)
+  );
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty;
+}
+
+// Guardar respuestas
 formEncuesta.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
-  btnEnviar.disabled = true;
-  btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...`;
 
-  const correo = document.getElementById('correoEstudiante').value.trim();
+  const correo = inputCorreo.value.trim();
   const inputsPreguntas = document.querySelectorAll('.pregunta-input');
   
+  let esValido = true;
+
+  // 1. Validar el campo de correo
+  if (!correo) {
+    inputCorreo.classList.add('is-invalid');
+    esValido = false;
+  } else {
+    inputCorreo.classList.remove('is-invalid');
+  }
+
+  // 2. Validar que TODAS las preguntas tengan respuesta seleccionada
   const respuestasSeleccionadas = {};
-  inputsPreguntas.forEach(input => {
-    const idPregunta = input.getAttribute('data-id');
-    respuestasSeleccionadas[idPregunta] = input.value;
+
+  inputsPreguntas.forEach(select => {
+    const idPregunta = select.getAttribute('data-id');
+    const valor = select.value;
+
+    if (!valor || valor === "") {
+      select.classList.add('is-invalid');
+      esValido = false;
+    } else {
+      select.classList.remove('is-invalid');
+      respuestasSeleccionadas[idPregunta] = valor;
+    }
   });
 
-  const payload = {
-    correo: correo,
-    respuestas: respuestasSeleccionadas,
-    fechaEnvio: new Date()
-  };
+  // Si falta responder alguna opción o el correo, detener el proceso
+  if (!esValido) {
+    alert("Por favor, completa tu correo y responde todas las preguntas del formulario.");
+    return;
+  }
+
+  // Cambiar estado visual del botón mientras realiza la validación remota
+  btnEnviar.disabled = true;
+  btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validando correo...`;
 
   try {
+    // 3. Validar duplicado en Firestore
+    const yaExiste = await verificarCorreoExistente(correo);
+
+    if (yaExiste) {
+      alert("Este correo electrónico ya ha respondido la encuesta anteriormente.");
+      inputCorreo.classList.add('is-invalid');
+      return;
+    }
+
+    // 4. Registrar respuestas
+    btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...`;
+
+    const payload = {
+      correo: correo,
+      respuestas: respuestasSeleccionadas,
+      fechaEnvio: new Date()
+    };
+
     await addDoc(collection(db, "respuestas_encuesta"), payload);
     
+    // Limpieza e interfaz
     formEncuesta.reset();
+    
+    // Limpiar clases de validación de Bootstrap
+    inputCorreo.classList.remove('is-invalid');
+    inputsPreguntas.forEach(s => s.classList.remove('is-invalid'));
+
     alertaExito.classList.remove('d-none');
 
     setTimeout(() => {
@@ -89,11 +146,12 @@ formEncuesta.addEventListener('submit', async (e) => {
 
   } catch (error) {
     console.error("Error al registrar la encuesta:", error);
-    alert("Ocurrió un error al enviar tus respuestas.");
+    alert("Ocurrió un error al procesar la respuesta.");
   } finally {
     btnEnviar.disabled = false;
     btnEnviar.innerHTML = `<i class="bi bi-send-fill me-2"></i> Enviar Encuesta`;
   }
 });
 
+// Inicializar la carga de preguntas
 cargarPreguntas();

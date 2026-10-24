@@ -42,7 +42,7 @@ async function renderizarGraficas() {
     const totalRespuestas = snapshotRespuestas.size || 0;
     if (totalBadge) totalBadge.textContent = `${totalRespuestas} Encuesta(s) Recibida(s)`;
 
-    contenedorGraficas.innerHTML = ""; // Limpiar el spinner
+    contenedorGraficas.innerHTML = ""; // Limpiar spinner
 
     let indexPregunta = 0;
 
@@ -56,6 +56,8 @@ async function renderizarGraficas() {
       const conteoOpciones = {};
       opciones.forEach(op => conteoOpciones[op] = 0);
 
+      // Conteo de respuestas para la pregunta actual
+      let totalVotosPregunta = 0;
       if (!snapshotRespuestas.empty) {
         snapshotRespuestas.forEach((docResp) => {
           const dataResp = docResp.data();
@@ -63,6 +65,7 @@ async function renderizarGraficas() {
             const seleccion = dataResp.respuestas[idPregunta];
             if (conteoOpciones[seleccion] !== undefined) {
               conteoOpciones[seleccion]++;
+              totalVotosPregunta++;
             }
           }
         });
@@ -71,22 +74,46 @@ async function renderizarGraficas() {
       const labels = Object.keys(conteoOpciones);
       const dataValues = Object.values(conteoOpciones);
 
+      // Generar HTML con desglose de porcentajes en texto
+      let desgloseHTML = `<div class="mt-3 pt-3 border-top">`;
+      labels.forEach((label, idx) => {
+        const votos = conteoOpciones[label];
+        const porcentaje = totalVotosPregunta > 0 ? ((votos / totalVotosPregunta) * 100).toFixed(1) : 0;
+        const color = chartColors[idx % chartColors.length];
+
+        desgloseHTML += `
+          <div class="d-flex justify-content-between align-items-center mb-1 small">
+            <span>
+              <span class="d-inline-block rounded-circle me-1" style="width:10px; height:10px; background-color:${color}"></span>
+              ${label}
+            </span>
+            <span class="fw-bold text-dark">${votos} voto(s) (${porcentaje}%)</span>
+          </div>
+        `;
+      });
+      desgloseHTML += `</div>`;
+
       // Inyectar HTML de la tarjeta
       const colDiv = document.createElement('div');
       colDiv.className = 'col-md-6 col-xl-6 mb-4';
       colDiv.innerHTML = `
         <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
-          <h5 class="fw-bold text-dark mb-3">
-            <span class="badge bg-primary text-white me-2">P${indexPregunta}</span>${textoPregunta}
-          </h5>
-          <div class="chart-container d-flex justify-content-center align-items-center" style="min-height:250px;">
-            <canvas id="chart-${idPregunta}"></canvas>
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="fw-bold text-dark mb-0">
+                <span class="badge bg-primary text-white me-2">P${indexPregunta}</span>${textoPregunta}
+              </h5>
+            </div>
+            <div class="chart-container d-flex justify-content-center align-items-center" style="min-height:220px;">
+              <canvas id="chart-${idPregunta}"></canvas>
+            </div>
           </div>
+          ${desgloseHTML}
         </div>
       `;
       contenedorGraficas.appendChild(colDiv);
 
-      // Generar la gráfica si Chart.js está cargado
+      // Renderizar gráfica con Chart.js
       const canvasEl = document.getElementById(`chart-${idPregunta}`);
       if (canvasEl && typeof Chart !== 'undefined') {
         const ctx = canvasEl.getContext('2d');
@@ -110,6 +137,19 @@ async function renderizarGraficas() {
                 labels: {
                   font: { family: 'Inter', size: 12 },
                   usePointStyle: true
+                }
+              },
+              // Configuración de los Tooltips para mostrar Porcentaje
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label || '';
+                    const valor = context.raw || 0;
+                    const porcentaje = totalVotosPregunta > 0 
+                      ? ((valor / totalVotosPregunta) * 100).toFixed(1) 
+                      : 0;
+                    return ` ${label}: ${valor} votos (${porcentaje}%)`;
+                  }
                 }
               }
             }
@@ -151,7 +191,7 @@ if (btnVaciar) {
   });
 }
 
-// Ejecutar cuando el DOM esté listo
+// Inicializar
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderizarGraficas);
 } else {
