@@ -6,7 +6,8 @@ import {
   doc, 
   getDoc, 
   query, 
-  where 
+  where,
+  orderBy 
 } from './firebase.js';
 
 // Elementos del DOM
@@ -59,10 +60,12 @@ async function cargarEncabezado() {
   }
 }
 
-// Cargar Preguntas Dinámicas
+// Cargar Preguntas Dinámicas en ORDEN ASCENDENTE (1, 2, 3...)
 async function cargarPreguntas() {
   try {
-    const querySnapshot = await getDocs(collection(db, "preguntas"));
+    // Consulta ordenando por fecha de creación ascendente (asc)
+    const q = query(collection(db, "preguntas"), orderBy("fechaCreacion", "asc"));
+    const querySnapshot = await getDocs(q);
     contenedorPreguntas.innerHTML = "";
 
     if (querySnapshot.empty) {
