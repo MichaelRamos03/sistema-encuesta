@@ -136,30 +136,31 @@ async function renderizarGraficas() {
             }]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  font: { family: 'Inter', size: 12 },
-                  usePointStyle: true
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    const label = context.label || '';
-                    const valor = context.raw || 0;
-                    const porcentaje = totalVotosPregunta > 0 
-                      ? ((valor / totalVotosPregunta) * 100).toFixed(1) 
-                      : 0;
-                    return ` ${label}: ${valor} votos (${porcentaje}%)`;
-                  }
-                }
-              }
-            }
-          }
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        font: { family: 'Inter', size: 11 },
+        usePointStyle: true,
+        padding: 12
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const label = context.label || '';
+          const valor = context.raw || 0;
+          const porcentaje = totalVotosPregunta > 0 
+            ? ((valor / totalVotosPregunta) * 100).toFixed(1) 
+            : 0;
+          return ` ${label}: ${valor} votos (${porcentaje}%)`;
+        }
+      }
+    }
+  }
+}
         });
       }
     });

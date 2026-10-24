@@ -16,9 +16,8 @@
   max-height: 320px;
 }
 
-
 @media print {
-  /* Ocultar elementos de navegación */
+  /* Ocultar interfaz de la app */
   .sidebar-custom, 
   #btnVaciarRespuestas, 
   #btnExportarPDF, 
@@ -27,7 +26,7 @@
   }
   
   @page {
-    margin: 8mm;
+    margin: 10mm;
     size: A4 portrait;
   }
 
@@ -38,35 +37,39 @@
     width: 100% !important;
   }
 
-  /* Mostrar 2 preguntas por fila en el PDF */
   #contenedorGraficas {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
+    display: block !important;
   }
 
+  /* Cada tarjeta en su propia fila dentro del PDF */
   .tarjeta-pregunta {
-    width: 48% !important;
-    margin-bottom: 8px !important;
+    width: 100% !important;
+    margin-bottom: 25px !important;
     padding: 0 !important;
-    page-break-inside: avoid;
+    page-break-inside: avoid; /* Evita que una gráfica se corte a la mitad de la hoja */
     break-inside: avoid;
   }
 
   .glass-card {
-    border: 1px solid #d1d5db !important;
+    border: 1px solid #e2e8f0 !important;
     box-shadow: none !important;
-    padding: 10px !important;
+    padding: 15px !important;
+    background: #ffffff !important;
   }
 
-  /* Reducir altura del canvas de la dona al imprimir */
+  /* Alto adecuado para que la dona y su leyenda no se encimen */
   .chart-container {
-    min-height: 140px !important;
-    max-height: 150px !important;
+    height: 260px !important;
+    width: 100% !important;
+    position: relative !important;
   }
 
-  h2 { font-size: 1.1rem !important; }
-  h5 { font-size: 0.8rem !important; margin-bottom: 4px !important; }
-  .border-top { margin-top: 4px !important; padding-top: 4px !important; }
-  .small { font-size: 0.65rem !important; }
+  /* Ajustes de tipografía */
+  h2 { font-size: 1.3rem !important; margin-bottom: 15px !important; }
+  h5 { font-size: 0.95rem !important; margin-bottom: 10px !important; color: #0f172a !important; }
+  
+  .border-top {
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+  }
 }
