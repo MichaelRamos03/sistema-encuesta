@@ -15,9 +15,8 @@
   width: 100%;
   max-height: 320px;
 }
-
 @media print {
-  /* 1. Ocultar interfaz no deseada */
+  /* Ocultar interfaz del sistema */
   .sidebar-custom, 
   #btnVaciarRespuestas, 
   #btnExportarPDF, 
@@ -25,7 +24,6 @@
     display: none !important;
   }
 
-  /* 2. Resetear contenedores para impresión continua */
   html, body, .container-fluid, .row, .main-content {
     height: auto !important;
     min-height: auto !important;
@@ -56,46 +54,41 @@
     display: block !important;
   }
 
-  /* 3. Forzar tarjeta en bloque vertical estricto */
   .glass-card {
     border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
     padding: 16px !important;
     background: #ffffff !important;
-    display: block !important; /* Quita el flex-column que empuja la dona hacia arriba */
+    display: block !important;
   }
 
-  /* Título siempre fijo arriba */
   h5 { 
     font-size: 0.95rem !important; 
     margin-bottom: 12px !important; 
     color: #0f172a !important;
-    display: block !important;
-    width: 100% !important;
   }
 
-  /* Contenedor de la dona con dimensiones estrictas */
+  /* Contenedor centrante de alto fijo adecuado */
   .chart-container {
-    height: 180px !important;
-    max-height: 180px !important;
+    height: 240px !important;
+    max-height: 240px !important;
     width: 100% !important;
     margin: 0 auto 12px auto !important;
-    display: block !important;
-    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
-  /* Forzar al canvas a no salirse de su contenedor */
+  /* Asegura que el canvas no se deforme */
   .chart-container canvas {
-    max-height: 180px !important;
-    width: 100% !important;
+    max-height: 240px !important;
+    width: auto !important;
   }
 
-  /* Desglose de opciones en la parte inferior */
   .border-top {
     margin-top: 10px !important;
     padding-top: 10px !important;
     border-top: 1px solid #e2e8f0 !important;
-    display: block !important;
   }
 
   h2 { font-size: 1.2rem !important; margin-bottom: 12px !important; }
