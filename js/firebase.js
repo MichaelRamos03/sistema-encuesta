@@ -10,7 +10,7 @@ import {
   setDoc,
   query, 
   where,
-  orderBy // <-- 1. Importar aquí
+  orderBy 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, 
@@ -44,7 +44,7 @@ export {
   setDoc,
   query, 
   where,
-  orderBy, 
+  orderBy,
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged 

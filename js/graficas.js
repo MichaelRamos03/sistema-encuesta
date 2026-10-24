@@ -1,4 +1,12 @@
-import { db, collection, getDocs, deleteDoc, doc } from './firebase.js';
+import { 
+  db, 
+  collection, 
+  getDocs, 
+  deleteDoc, 
+  doc, 
+  query, 
+  orderBy 
+} from './firebase.js';
 
 const contenedorGraficas = document.getElementById('contenedorGraficas');
 const totalBadge = document.getElementById('totalRespuestasBadge');
@@ -14,26 +22,25 @@ async function renderizarGraficas() {
   if (!contenedorGraficas) return;
 
   try {
-    // 1. Obtener preguntas registradas
-    const snapshotPreguntas = await getDocs(collection(db, "preguntas"));
+    // 1. Obtener preguntas ordenadas cronológicamente (P1, P2, P3...)
+    const qPreguntas = query(collection(db, "preguntas"), orderBy("fechaCreacion", "asc"));
+    const snapshotPreguntas = await getDocs(qPreguntas);
     
-    // 2. Obtener respuestas de la encuesta de forma segura
+    // 2. Obtener respuestas registradas
     let snapshotRespuestas;
     try {
       snapshotRespuestas = await getDocs(collection(db, "respuestas_encuesta"));
     } catch (errResp) {
-      console.warn("Colección 'respuestas_encuesta' no iniciada aún:", errResp);
+      console.warn("Colección 'respuestas_encuesta' vacía o no iniciada:", errResp);
       snapshotRespuestas = { empty: true, size: 0, forEach: () => {} };
     }
 
-    // Si no hay preguntas creadas
     if (snapshotPreguntas.empty) {
       contenedorGraficas.innerHTML = `
         <div class="col-12 text-center py-5">
           <div class="glass-card p-5">
             <i class="bi bi-exclamation-circle fs-1 text-warning d-block mb-3"></i>
             <h5 class="fw-bold">No hay preguntas creadas</h5>
-            <p class="text-muted small mb-0">Crea preguntas desde el panel para empezar a recopilar datos.</p>
           </div>
         </div>`;
       if (totalBadge) totalBadge.textContent = "0 Respuestas";
@@ -57,7 +64,6 @@ async function renderizarGraficas() {
       const conteoOpciones = {};
       opciones.forEach(op => conteoOpciones[op] = 0);
 
-      // Conteo de respuestas para la pregunta actual
       let totalVotosPregunta = 0;
       if (!snapshotRespuestas.empty) {
         snapshotRespuestas.forEach((docResp) => {
@@ -75,83 +81,61 @@ async function renderizarGraficas() {
       const labels = Object.keys(conteoOpciones);
       const dataValues = Object.values(conteoOpciones);
 
-      // Generar HTML con desglose de porcentajes en texto
-      let desgloseHTML = `<div class="mt-3 pt-3 border-top">`;
-      labels.forEach((label, idx) => {
-        const votos = conteoOpciones[label];
-        const porcentaje = totalVotosPregunta > 0 ? ((votos / totalVotosPregunta) * 100).toFixed(1) : 0;
-        const color = chartColors[idx % chartColors.length];
-
-        desgloseHTML += `
-          <div class="d-flex justify-content-between align-items-center mb-1 small">
-            <span>
-              <span class="d-inline-block rounded-circle me-1" style="width:10px; height:10px; background-color:${color}"></span>
-              ${label}
-            </span>
-            <span class="fw-bold text-dark">${votos} voto(s) (${porcentaje}%)</span>
-          </div>
-        `;
-      });
-      desgloseHTML += `</div>`;
-
-      // Inyectar HTML de la tarjeta
+      // Generar tarjeta para la gráfica
       const colDiv = document.createElement('div');
-      colDiv.className = 'col-md-6 col-xl-6 mb-4';
+      colDiv.className = 'col-md-6 col-xl-6 mb-4 tarjeta-pregunta';
       colDiv.innerHTML = `
-        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <h5 class="fw-bold text-dark mb-0">
-                <span class="badge bg-primary text-white me-2">P${indexPregunta}</span>${textoPregunta}
-              </h5>
-            </div>
-            <div class="chart-container d-flex justify-content-center align-items-center" style="min-height:220px;">
-              <canvas id="chart-${idPregunta}"></canvas>
-            </div>
+        <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between">
+          <h6 class="fw-bold text-dark mb-2 small">
+            <span class="badge bg-primary text-white me-1">P${indexPregunta}</span> ${textoPregunta}
+          </h6>
+          <div class="chart-container" style="position: relative; height:180px; width:100%;">
+            <canvas id="chart-${idPregunta}"></canvas>
           </div>
-          ${desgloseHTML}
         </div>
       `;
       contenedorGraficas.appendChild(colDiv);
 
-      // Renderizar gráfica con Chart.js
+      // Renderizar gráfica de barras horizontales compactas
       const canvasEl = document.getElementById(`chart-${idPregunta}`);
       if (canvasEl && typeof Chart !== 'undefined') {
         const ctx = canvasEl.getContext('2d');
         new Chart(ctx, {
-          type: 'doughnut',
+          type: 'bar',
           data: {
             labels: labels,
             datasets: [{
+              label: 'Votos',
               data: dataValues,
               backgroundColor: chartColors.slice(0, labels.length),
-              borderWidth: 2,
-              borderColor: '#ffffff'
+              borderRadius: 4
             }]
           },
           options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  font: { family: 'Inter', size: 12 },
-                  usePointStyle: true
-                }
-              },
-              // Configuración de los Tooltips para mostrar Porcentaje
+              legend: { display: false },
               tooltip: {
                 callbacks: {
                   label: function (context) {
-                    const label = context.label || '';
                     const valor = context.raw || 0;
                     const porcentaje = totalVotosPregunta > 0 
                       ? ((valor / totalVotosPregunta) * 100).toFixed(1) 
                       : 0;
-                    return ` ${label}: ${valor} votos (${porcentaje}%)`;
+                    return ` ${valor} voto(s) (${porcentaje}%)`;
                   }
                 }
+              }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: { precision: 0, font: { size: 10 } }
+              },
+              y: {
+                ticks: { font: { size: 10 } }
               }
             }
           }
@@ -161,47 +145,34 @@ async function renderizarGraficas() {
 
   } catch (error) {
     console.error("Error al renderizar gráficas:", error);
-    if (contenedorGraficas) {
-      contenedorGraficas.innerHTML = `
-        <div class="col-12 alert alert-danger text-center rounded-4 p-4">
-          <i class="bi bi-bug-fill fs-3 d-block mb-2"></i>
-          <strong>Error al procesar los datos:</strong> ${error.message}
-        </div>`;
-    }
   }
 }
 
-// Evento para vaciar las respuestas
+// Botón de Impresión
+if (btnExportar) {
+  btnExportar.addEventListener('click', () => {
+    window.print();
+  });
+}
+
+// Botón de Vaciar Respuestas
 if (btnVaciar) {
   btnVaciar.addEventListener('click', async () => {
-    const confirmar = confirm("¿Estás seguro de que deseas borrar TODAS las respuestas registradas?");
-    
-      if (confirmar) {
+    if (confirm("¿Estás seguro de que deseas borrar TODAS las respuestas registradas?")) {
       try {
         const snapshot = await getDocs(collection(db, "respuestas_encuesta"));
         const borrados = snapshot.docs.map(documento => deleteDoc(doc(db, "respuestas_encuesta", documento.id)));
-        
         await Promise.all(borrados);
-        alert("Respuestas eliminadas correctamente.");
         location.reload();
       } catch (error) {
         console.error("Error al borrar respuestas:", error);
-        alert("Hubo un error al intentar vaciar las respuestas.");
       }
     }
   });
 }
 
-// Inicializar
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderizarGraficas);
 } else {
   renderizarGraficas();
-}
-
-// Evento para exportar / imprimir reporte a PDF
-if (btnExportar) {
-  btnExportar.addEventListener('click', () => {
-    window.print();
-  });
 }
