@@ -16,8 +16,9 @@
   max-height: 320px;
 }
 
+
 @media print {
-  /* 1. Ocultar interfaz administrativa */
+  /* Ocultar interfaz del sistema */
   .sidebar-custom, 
   #btnVaciarRespuestas, 
   #btnExportarPDF, 
@@ -25,7 +26,6 @@
     display: none !important;
   }
 
-  /* 2. Liberar altura y overflow para que se generen todas las páginas necesarias */
   html, body, .container-fluid, .row, .main-content {
     height: auto !important;
     min-height: auto !important;
@@ -39,21 +39,17 @@
   }
 
   @page {
-    margin: 12mm;
+    margin: 10mm;
     size: A4 portrait;
   }
 
-  /* 3. Contenedor en flujo vertical continuo */
   #contenedorGraficas {
     display: block !important;
-    height: auto !important;
-    overflow: visible !important;
   }
 
-  /* 4. Cada tarjeta se ajusta a su contenido y no se corta feo en los saltos de página */
   .tarjeta-pregunta {
     width: 100% !important;
-    margin-bottom: 25px !important;
+    margin-bottom: 20px !important;
     padding: 0 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
@@ -61,18 +57,28 @@
   }
 
   .glass-card {
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
-    padding: 15px !important;
+    padding: 16px !important;
     background: #ffffff !important;
   }
 
+  /* Separación estricta para el título de la pregunta */
+  h5 { 
+    font-size: 0.95rem !important; 
+    margin-bottom: 15px !important; 
+    color: #0f172a !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+
+  /* Altura fija del contenedor del lienzo */
   .chart-container {
-    height: 240px !important;
-    width: 100% !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    margin-bottom: 15px !important;
     position: relative !important;
   }
 
-  h2 { font-size: 1.3rem !important; margin-bottom: 15px !important; }
-  h5 { font-size: 0.95rem !important; margin-bottom: 10px !important; color: #0f172a !important; }
+  h2 { font-size: 1.2rem !important; margin-bottom: 12px !important; }
 }
