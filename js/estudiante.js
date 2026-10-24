@@ -4,13 +4,33 @@ const contenedorPreguntas = document.getElementById('contenedorPreguntas');
 const formEncuesta = document.getElementById('formEncuesta');
 const btnEnviar = document.getElementById('btnEnviarRespuestas');
 const alertaExito = document.getElementById('alertaExito');
+const alertaError = document.getElementById('alertaError');
+const alertaErrorTexto = document.getElementById('alertaErrorTexto');
 const inputCorreo = document.getElementById('correoEstudiante');
+
+// Función para mostrar alertas de error dentro de la interfaz
+function mostrarError(mensaje) {
+  if (alertaError && alertaErrorTexto) {
+    alertaErrorTexto.textContent = mensaje;
+    alertaError.classList.remove('d-none');
+    
+    // Ocultar la alerta automáticamente después de 5 segundos
+    setTimeout(() => {
+      alertaError.classList.add('d-none');
+    }, 5000);
+  }
+}
+
+function ocultarAlertas() {
+  if (alertaError) alertaError.classList.add('d-none');
+  if (alertaExito) alertaExito.classList.add('d-none');
+}
 
 // Cargar preguntas desde Firestore
 async function cargarPreguntas() {
   try {
     const querySnapshot = await getDocs(collection(db, "preguntas"));
-    contenedorPreguntas.innerHTML = ""; // Limpiar spinner
+    contenedorPreguntas.innerHTML = "";
 
     if (querySnapshot.empty) {
       contenedorPreguntas.innerHTML = `
@@ -70,6 +90,7 @@ async function verificarCorreoExistente(correo) {
 // Guardar respuestas
 formEncuesta.addEventListener('submit', async (e) => {
   e.preventDefault();
+  ocultarAlertas();
 
   const correo = inputCorreo.value.trim();
   const inputsPreguntas = document.querySelectorAll('.pregunta-input');
@@ -100,13 +121,13 @@ formEncuesta.addEventListener('submit', async (e) => {
     }
   });
 
-  // Si falta responder alguna opción o el correo, detener el proceso
+  // Si falta responder alguna opción o el correo, detener y mostrar alerta Bootstrap
   if (!esValido) {
-    alert("Por favor, completa tu correo y responde todas las preguntas del formulario.");
+    mostrarError("Por favor, completa tu correo y responde todas las preguntas antes de enviar.");
     return;
   }
 
-  // Cambiar estado visual del botón mientras realiza la validación remota
+  // Cambiar estado visual del botón durante las validaciones
   btnEnviar.disabled = true;
   btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validando correo...`;
 
@@ -115,7 +136,7 @@ formEncuesta.addEventListener('submit', async (e) => {
     const yaExiste = await verificarCorreoExistente(correo);
 
     if (yaExiste) {
-      alert("Este correo electrónico ya ha respondido la encuesta anteriormente.");
+      mostrarError("Este correo electrónico ya ha registrado una respuesta previamente.");
       inputCorreo.classList.add('is-invalid');
       return;
     }
@@ -133,8 +154,6 @@ formEncuesta.addEventListener('submit', async (e) => {
     
     // Limpieza e interfaz
     formEncuesta.reset();
-    
-    // Limpiar clases de validación de Bootstrap
     inputCorreo.classList.remove('is-invalid');
     inputsPreguntas.forEach(s => s.classList.remove('is-invalid'));
 
@@ -146,12 +165,11 @@ formEncuesta.addEventListener('submit', async (e) => {
 
   } catch (error) {
     console.error("Error al registrar la encuesta:", error);
-    alert("Ocurrió un error al procesar la respuesta.");
+    mostrarError("Ocurrió un error inesperado al procesar la respuesta.");
   } finally {
     btnEnviar.disabled = false;
     btnEnviar.innerHTML = `<i class="bi bi-send-fill me-2"></i> Enviar Encuesta`;
   }
 });
 
-// Inicializar la carga de preguntas
 cargarPreguntas();
