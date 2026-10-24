@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuesta</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Estilos del Estudiante -->
+  <link rel="stylesheet" href="./css/estudiante.css">
+</head>
+<body>
+
+  <div class="container py-5 min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="row justify-content-center w-100">
+      <div class="col-md-8 col-lg-6">
+        
+        <div class="glass-card p-4 p-md-5">
+          
+          <div class="text-center mb-4">
+            <div class="icon-pulse mb-3 mx-auto">
+              <i class="bi bi-file-earmark-text-fill fs-2"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Encuesta</h3>
+            <p class="text-secondary small">Ingresa tu correo e indica tus respuestas</p>
+          </div>
+
+          <form id="formEncuesta">
+            <!-- Correo institucional/personal -->
+            <div class="form-floating mb-4">
+              <input type="email" class="form-control input-modern" id="correoEstudiante" placeholder="usuario@ues.edu.sv" required autocomplete="off">
+              <label for="correoEstudiante" class="text-muted"><i class="bi bi-envelope-at me-2"></i>Correo universitario / personal</label>
+            </div>
+
+            <hr class="my-4 border-secondary opacity-25">
+
+            <!-- Contenedor dinámico donde JS renderiza las preguntas -->
+            <div id="contenedorPreguntas">
+              <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando formulario...</span>
+                </div>
+                <p class="text-muted small mt-2">Cargando preguntas dinámicas...</p>
+              </div>
+            </div>
+
+            <!-- Botón de envío -->
+            <button type="submit" class="btn custom-btn w-100 mt-4" id="btnEnviarRespuestas" disabled>
+              <i class="bi bi-send-fill me-2"></i> Enviar Encuesta
+            </button>
+          </form>
+
+          <!-- Alerta de Confirmación -->
+          <div id="alertaExito" class="modern-alert mt-4 d-none d-flex align-items-center" role="alert">
+            <div class="alert-icon-wrap me-3">
+              <i class="bi bi-check2-circle fs-4 text-white"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold text-success">¡Muchas gracias!</h6>
+              <small class="text-success opacity-75">Tus respuestas han sido registradas en Firestore.</small>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Lógica de la Encuesta -->
+  <script type="module" src="./js/estudiante.js"></script>
+</body>
+</html>

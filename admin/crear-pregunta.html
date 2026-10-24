@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Pregunta</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Hojas de estilo -->
+  <link rel="stylesheet" href="../css/admin-global.css">
+  <link rel="stylesheet" href="../css/crear-pregunta.css">
+</head>
+<body>
+
+  <div class="container-fluid h-100 p-0">
+    <div class="row g-0 h-100">
+      
+      <!-- Sidebar / Menú Lateral -->
+      <aside class="col-md-3 col-lg-2 sidebar-custom d-flex flex-column p-3 text-white">
+        <a href="dashboard.html" class="d-flex align-items-center mb-4 mt-2 text-white text-decoration-none">
+          <i class="bi bi-layers-half fs-3 me-2 text-primary-light"></i>
+          <span class="fs-5 fw-bold">SURVEY</span>
+        </a>
+        <hr class="border-secondary mt-0">
+        
+        <ul class="nav nav-pills flex-column mb-auto mt-2">
+          <li class="nav-item mb-2">
+            <a href="dashboard.html" class="nav-link text-white">
+              <i class="bi bi-speedometer2 me-2"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a href="crear-pregunta.html" class="nav-link active">
+              <i class="bi bi-ui-checks-grid me-2"></i> Crear Pregunta
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a href="graficas.html" class="nav-link text-white">
+              <i class="bi bi-pie-chart-fill me-2"></i> Ver Gráficas
+            </a>
+          </li>
+          <li class="nav-item mt-3">
+            <a href="../index.html" class="nav-link text-white border border-secondary rounded" target="_blank">
+              <i class="bi bi-box-arrow-up-right me-2"></i> Ver Encuesta
+            </a>
+          </li>
+        </ul>
+        <hr class="border-secondary">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-person-circle fs-4 me-2"></i>
+            <small class="fw-bold">ADMIN</small>
+          </div>
+          <button id="btnLogout" class="btn btn-sm btn-outline-danger border-0" title="Cerrar Sesión">
+            <i class="bi bi-box-arrow-right fs-5"></i>
+          </button>
+        </div>
+      </aside>
+
+            <!-- Contenido Principal -->
+      <main class="col-md-9 col-lg-10 main-content p-4 p-md-5 d-flex flex-column align-items-center justify-content-center">
+        
+        <div class="w-100 text-center mb-4">
+          <h2 class="fw-bold text-dark mb-0">
+            <i class="bi bi-database-add me-2 text-primary"></i>Estructurar Encuesta
+          </h2>
+        </div>
+
+        <div class="row justify-content-center w-100">
+          <div class="col-md-10 col-lg-8 col-xl-6">
+            <div class="glass-card p-4 p-md-5">
+              
+              <div class="text-center mb-4">
+                <div class="icon-pulse mb-3 mx-auto">
+                  <i class="bi bi-ui-checks-grid fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Nueva Pregunta</h4>
+                <p class="text-muted small">Crea preguntas de selección múltiple.</p>
+              </div>
+
+              <form id="formCrearPregunta">
+                <div class="form-floating mb-4">
+                  <input type="text" class="form-control input-modern" id="textoPregunta" placeholder="Escribe la pregunta" required autocomplete="off">
+                  <label for="textoPregunta" class="text-muted"><i class="bi bi-question-circle me-2"></i>Texto de la pregunta</label>
+                </div>
+
+                <div class="form-floating mb-2">
+                  <input type="text" class="form-control input-modern" id="opcionesPregunta" placeholder="Opciones" required autocomplete="off">
+                  <label for="opcionesPregunta" class="text-muted"><i class="bi bi-list-ul me-2"></i>Opciones (separadas por coma)</label>
+                </div>
+                <div class="form-text mb-4 text-muted small ps-1">
+                  <i class="bi bi-info-circle-fill text-primary me-1"></i> Ejemplo: <strong>Java, PHP, C++, JavaScript</strong>
+                </div>
+
+                <button type="submit" class="btn custom-btn w-100" id="btnGuardarPregunta">
+                  <i class="bi bi-cloud-arrow-up-fill me-2 fs-5"></i> Guardar
+                </button>
+              </form>
+
+              <!-- Alerta de Éxito -->
+              <div id="alertaAdmin" class="modern-alert mt-4 d-none d-flex align-items-center" role="alert">
+                <div class="alert-icon-wrap me-3">
+                  <i class="bi bi-check2-all fs-4 text-white"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-bold text-success">Transacción Exitosa</h6>
+                  <small class="text-success opacity-75">La pregunta ha sido agregada.</small>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="../js/admin-global.js"></script>
+  <script type="module" src="../js/crear-pregunta.js"></script>
+</body>
+</html>
